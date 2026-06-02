@@ -1158,8 +1158,27 @@ function calculate(){
 
   const oat   = parseFloat(document.getElementById('m_oat').value);
   const altim = parseFloat(document.getElementById('m_alt').value)||29.92;
-  const elev  = parseFloat(document.getElementById('m_elev').value)||0;
+  const elevEl= document.getElementById('m_elev');
+  const elev  = parseFloat(elevEl.value);
   const rwyHdg= parseFloat(document.getElementById('rwy_hdg').value);
+
+  // Field elevation is required for performance calculations
+  if(isNaN(elev)){
+    elevEl.style.borderColor='var(--red)';
+    elevEl.style.boxShadow='0 0 0 3px rgba(192,57,43,.18)';
+    elevEl.focus();
+    elevEl.scrollIntoView({behavior:'smooth', block:'center'});
+    const hint = elevEl.parentElement.querySelector('.elev-err') || document.createElement('div');
+    hint.className='error elev-err';
+    hint.textContent='⚠ Field elevation is required — fetch a METAR or enter manually.';
+    if(!elevEl.parentElement.querySelector('.elev-err')) elevEl.parentElement.appendChild(hint);
+    return;
+  } else {
+    elevEl.style.borderColor='';
+    elevEl.style.boxShadow='';
+    const hint = elevEl.parentElement.querySelector('.elev-err');
+    if(hint) hint.remove();
+  }
 
   const ARM={FRONT:37, REAR:73, BAGA:95, BAGB:125, FUEL:48};
   const fuelLbs = fuelGal*6;
@@ -1628,6 +1647,14 @@ function drawEnvelope(toWt, toMom, ldgWt, ldgMom){
   dot(ldgCGv, ldgWt, ldgIn ? '#2a6dd9' : '#c0392b', 'LDG');
 }
 
+
+// Clear elevation error styling on input
+document.getElementById('m_elev').addEventListener('input', function(){
+  this.style.borderColor='';
+  this.style.boxShadow='';
+  const hint = this.parentElement.querySelector('.elev-err');
+  if(hint) hint.remove();
+});
 
 // ════════════════════════════════════════════════════
 //  INIT
